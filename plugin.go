@@ -23,7 +23,7 @@ const (
 )
 
 // pluginVersion is stamped at build time with -X main.pluginVersion=<tag>.
-var pluginVersion = "0.1.0"
+var pluginVersion = "0.1.1"
 
 var current atomic.Pointer[cloak.Rewriter]
 

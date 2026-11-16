@@ -209,7 +209,86 @@ func (r *Rewriter) RewriteBody(body []byte) ([]byte, bool) {
 			}
 		}
 	}
+	if next, ok := r.rewriteToolDescriptions(out); ok {
+		out, changed = next, true
+	}
 	return out, changed
+}
+
+// RewriteDescription neutralizes product names and applies the sentence rules
+// to a tool or parameter description. The opening-identity rewrite is skipped:
+// tool docs are not identity statements.
+func (r *Rewriter) RewriteDescription(text string) string {
+	if text == "" {
+		return text
+	}
+	out := text
+	for _, rule := range r.rules {
+		out = rule.re.ReplaceAllString(out, rule.replacement)
+	}
+	if r.brandRe != nil {
+		out = r.brandRe.ReplaceAllString(out, "assistant")
+		out = r.ompRe.ReplaceAllString(out, "assistant")
+		out = multiSpaceRe.ReplaceAllString(out, " ")
+	}
+	return out
+}
+
+var toolPaths = []string{"request.tools", "tools"}
+
+// rewriteToolDescriptions rewrites every "description" string under the tool
+// declarations. Tool names are never changed, so calls keep working.
+func (r *Rewriter) rewriteToolDescriptions(body []byte) ([]byte, bool) {
+	changed := false
+	out := body
+	for _, base := range toolPaths {
+		tools := gjson.GetBytes(out, base)
+		if !tools.IsArray() {
+			continue
+		}
+		var edits [][2]string
+		collectDescriptions(tools, base, &edits)
+		for _, e := range edits {
+			if next := r.RewriteDescription(e[1]); next != e[1] {
+				if updated, err := sjson.SetBytes(out, e[0], next); err == nil {
+					out, changed = updated, true
+				}
+			}
+		}
+	}
+	return out, changed
+}
+
+func collectDescriptions(node gjson.Result, path string, edits *[][2]string) {
+	switch {
+	case node.IsArray():
+		for i, child := range node.Array() {
+			collectDescriptions(child, path+"."+itoa(i), edits)
+		}
+	case node.IsObject():
+		node.ForEach(func(key, value gjson.Result) bool {
+			k := key.String()
+			childPath := path + "." + escapePath(k)
+			if k == "description" && value.Type == gjson.String {
+				*edits = append(*edits, [2]string{childPath, value.String()})
+			} else if value.IsObject() || value.IsArray() {
+				collectDescriptions(value, childPath, edits)
+			}
+			return true
+		})
+	}
+}
+
+func escapePath(key string) string {
+	var b strings.Builder
+	for _, c := range key {
+		switch c {
+		case '.', '*', '?', '|', '#', '@', '\\', '!', '=', '<', '>', '%', ':':
+			b.WriteByte('\\')
+		}
+		b.WriteRune(c)
+	}
+	return b.String()
 }
 
 func itoa(i int) string {

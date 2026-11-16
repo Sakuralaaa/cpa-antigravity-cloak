@@ -95,3 +95,20 @@ func TestExtraRulesAndIdentity(t *testing.T) {
 		t.Fatalf("got %q", got)
 	}
 }
+
+func TestToolDescriptions(t *testing.T) {
+	body := []byte(`{"request":{"tools":[{"functionDeclarations":[{"name":"PluginCreate","description":"Create a PI-Desktop plugin from a template.","parametersJsonSchema":{"type":"object","properties":{"dir.x":{"type":"string","description":"PI-Desktop dir"}}}}]}]}}`)
+	out, changed := rw(t).RewriteBody(body)
+	if !changed {
+		t.Fatal("not changed")
+	}
+	if strings.Contains(string(out), "PI-Desktop") {
+		t.Fatalf("got %s", out)
+	}
+	if gjson.GetBytes(out, "request.tools.0.functionDeclarations.0.name").String() != "PluginCreate" {
+		t.Fatal("name changed")
+	}
+	if gjson.GetBytes(out, "request.tools.0.functionDeclarations.0.description").String() != "Create a assistant plugin from a template." {
+		t.Fatalf("got %s", out)
+	}
+}

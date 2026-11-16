@@ -3,7 +3,7 @@
 自 2026 年 11 月起，Google Antigravity 会按系统提示词里的固定句子识别第三方客户端，直接回假的 `429 RESOURCE_EXHAUSTED`（额度其实没用）。这个插件在 CPA 把请求发往 Antigravity 之前，改写系统提示词里的这些特征。
 
 - 只处理发往 Antigravity 的请求，其它渠道原样放行。
-- 只改 `systemInstruction`，不动用户消息、工具定义和工具名。
+- 只改 `systemInstruction` 和工具定义里的 description 文字，不动用户消息、工具名和参数结构。
 - **只删除或改写成中性英文，不插入零宽空格等隐形字符**：11 月 14–15 日那波 403 封号，社区普遍认为与隐形字符混淆被识别有关，CPA 作者也建议删句或改写而不是混淆。
 
 ## 改写了什么
@@ -15,7 +15,7 @@
    - oh-my-pi (omp)：`RFC 2119 keywords: …` 整行删除；`Read xd://<tool> for full docs + JSON schema before first use.` 改写
    - Claude Code 主代理 / 子代理身份句、Codex 身份句
    - OpenCode 的 `session_move`
-3. 系统提示词里的客户端产品名（PI-Desktop、Claude Code、Codex、OpenCode、omp、Cline、Roo Code、Kilo Code、Hermes Agent、ZCode…）替换为 `assistant`。
+3. 系统提示词和工具说明里的客户端产品名（PI-Desktop、Claude Code、Codex、OpenCode、omp、Cline、Roo Code、Kilo Code、Hermes Agent、ZCode…）替换为 `assistant`。
 
 ## 安装（插件市场）
 
