@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "plugins": [
+    {
+      "id": "antigravity-cloak",
+      "name": "Antigravity Cloak",
+      "description": "Rewrites third-party agent fingerprints (PI-Desktop, pi, omp, Claude Code, Codex, OpenCode...) in Antigravity system instructions that Google answers with a false 429. Deletes or rewords text; never inserts invisible characters.",
+      "author": "Sakuralaaa",
+      "repository": "https://github.com/Sakuralaaa/cpa-antigravity-cloak",
+      "homepage": "https://github.com/Sakuralaaa/cpa-antigravity-cloak",
+      "license": "MIT",
+      "tags": ["Normalizer", "Antigravity"],
+      "locales": {
+        "zh-CN": {
+          "description": "改写发往 Antigravity 的系统提示词里第三方客户端的身份句和已知触发句（PI-Desktop、pi、omp、Claude Code、Codex、OpenCode 等），解决假 429。只删除或改写为中性英文，不插入零宽等隐形字符。"
+        }
+      }
+    }
+  ]
+}
